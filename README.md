@@ -6,8 +6,6 @@ Intro to DB Final Project
 
 You're going to need Node.js (and npm, it's package manager) setup on your machine in order to run the development environment locally. I don't care how you install Node, but I do recommend you use a package manager like homebrew or apt and pull the latest LTS version.
 
-The database we're using is PostgreSQL, so if you'd like to run a local instance of the db, feel free. Instructions for populating your db can be found in the `db/` directory.
-
 After cloning this package (and installing Node!), run the following:
 
 ```
