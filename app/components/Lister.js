@@ -2,11 +2,18 @@ import React, {Component} from 'react'
 import {Card, Collapse} from 'antd'
 const {Panel} = Collapse
 
+const sampleData = [
+	{ name: 'asdf', status: 'adfas' },
+	{ name: '1234', status: 'asdf' },
+	{ name: '63a', status: 'y5h3q' },
+	{ name: '1325g', status: '3q5' },
+]
+
 class Lister extends Component {
 	renderRows() {
 		return sampleData.map((t, i) => {
 			return (
-				<Panel header={t.name}>
+				<Panel key={i} header={t.name}>
 					{t.name}
 				</Panel>
 			)
@@ -23,12 +30,5 @@ class Lister extends Component {
 		)
 	}
 }
-
-const sampleData = [
-	{ name: 'asdf', status: 'adfas' },
-	{ name: '1234', status: 'asdf' },
-	{ name: '63a', status: 'y5h3q' },
-	{ name: '1325g', status: '3q5' },
-]
 
 export default Lister

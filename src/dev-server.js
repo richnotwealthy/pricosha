@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var router = express.Router();
+var db = require('./db/db');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -47,10 +48,12 @@ app.use(bodyParser.urlencoded({
 
 app.use(cookieParser());
 
+app.use('/db', db);
+
 app.use('/', router);
 
-module.exports = function(port) {
-    var server = app.listen(port, function() {
-        console.log('listening on', port);
-    });
-};
+var DEFAULT_PORT = process.env.PORT || 3083;
+
+app.listen(DEFAULT_PORT, function() {
+    console.log('listening on', DEFAULT_PORT);
+});

@@ -1,7 +1,9 @@
 import './App.css'
 import React, {Component} from 'react'
+import axios from 'axios'
 import Lister from './components/Lister'
-import {Layout, Menu, Icon} from 'antd'
+import LoginPage from './components/LoginPage'
+import {Layout, Menu, Icon, message} from 'antd'
 const {Content, Sider} = Layout
 const {Item} = Menu
 
@@ -10,11 +12,32 @@ class App extends Component {
 		super(props)
 
 		this.state = {
-			collapsed: false
+			collapsed: false,
+			loggedIn: false,
+			user: ''
 		}
 	}
 
-	render() {
+	onLogin = ({ username, password }) => {
+		axios.post('/db/login', { username, password })
+			.then(res => {
+				this.setState({ loggedIn: res.data, user: username })
+				
+				if (!res.data) {
+					message.error('Invalid login information!')
+				} else {
+					message.success('Login successful!')
+				}
+			})
+	}
+
+	render = () => {
+		if (!this.state.loggedIn) {
+			return (
+				<LoginPage onLogin={this.onLogin} />
+			)
+		}
+		
 		return (
 			<div className='App'>
 				<Layout style={{ minHeight: '100vh' }}>

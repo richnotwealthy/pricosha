@@ -8,8 +8,8 @@ var opn = require('opn');
 var detect = require('./util/detectPort');
 var prompt = require('./util/prompt');
 var config = require('../config/webpack.config.dev');
-var server = require('./dev-server');
-
+// var server = require('./dev-server');
+var nodemon = require('nodemon');
 
 var DEFAULT_PORT = process.env.PORT || 3083;
 var compiler;
@@ -137,7 +137,11 @@ function openBrowser(port) {
 }
 
 function runDevServer(port) {
-    server(port);
+    // nodemon({
+	// 	script: 'src/dev-server.js'
+	// }); 
+	
+	require('./dev-server.js');
 
     clearConsole();
     console.log(chalk.cyan('Starting the development server...'));
