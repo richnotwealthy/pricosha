@@ -139,8 +139,8 @@ function openBrowser(port) {
 function runDevServer(port) {
     // nodemon({
 	// 	script: 'src/dev-server.js'
-	// }); 
-	
+	// });
+
 	require('./dev-server.js');
 
     clearConsole();
