@@ -77,4 +77,42 @@ router.post('/contentInfo', function(req, res) {
 	})
 })
 
+router.post('/friendGroups', function(req, res) {
+	const username = req.body.username
+
+	sequelize.query(
+		'SELECT group_name FROM FriendGroup WHERE username = :username',
+		{
+			replacements: { username: username },
+			type: sequelize.QueryTypes.SELECT
+		}
+	).then(groups => {
+		res.json(groups)
+	})
+})
+
+router.post('/postContent', function(req, res) {
+	const { username, caption, path, isPublic, groups } = req.body
+
+	sequelize.query(
+		'INSERT INTO `Content` (`id`, `username`, `timest`, `file_path`, `content_name`, `public`) VALUES (NULL, :username, CURRENT_TIMESTAMP, :path, :caption, :isPublic)',
+		{
+			replacements: { username, caption, path, isPublic },
+			type: sequelize.QueryTypes.INSERT
+		}
+	).then(newContent => {
+		const newId = newContent[0]
+
+		groups.forEach(t => {
+			sequelize.query(
+				'INSERT INTO `Share` (`id`, `group_name`, `username`) VALUES (:newId, :group, :username)',
+				{
+					replacements: { newId, group: t, username },
+					type: sequelize.QueryTypes.INSERT
+				}
+			)
+		})
+	})
+})
+
 module.exports = router;

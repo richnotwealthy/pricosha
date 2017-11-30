@@ -15,7 +15,11 @@ class ContentViewer extends Component {
 	componentDidMount() {
 		axios.post('/db/userContent', { user: this.props.user })
 			.then(res => {
-				this.setState({ data: res.data })
+				this.setState({
+					data: res.data.sort((a, b) => {
+						return a.timest < b.timest
+					})
+				})
 			})
 	}
 
