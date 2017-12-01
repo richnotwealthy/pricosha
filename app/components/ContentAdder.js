@@ -22,6 +22,24 @@ class ContentAdder extends Component {
 			})
 	}
 
+	handleInputChange = (e) => {
+		this.setState({
+			[e.target.name]: e.target.value
+		})
+	}
+
+	handlePost = () => {
+		axios.post('/db/postContent', {
+			username: this.props.user,
+			caption: this.state.caption,
+			path: this.state.path,
+			isPublic: this.state.isPublic ? 1 : 0,
+			groups: this.state.groups
+		})
+
+		this.setState({caption: '', path: '', isPublic: true, groups: []})
+	}
+
 	render() {
 		return (
 			<Card>
@@ -29,13 +47,13 @@ class ContentAdder extends Component {
 					name='caption'
 					placeholder='Caption'
 					value={this.state.caption}
-					onChange={(e) => this.setState({ caption: e.target.value })}
+					onChange={this.handleInputChange}
 				/>
 				<Input
 					name='path'
 					placeholder='Path'
 					value={this.state.path}
-					onChange={(e) => this.setState({ path: e.target.value })}
+					onChange={this.handleInputChange}
 				/>
 			<Checkbox checked={this.state.isPublic} onChange={(e) => this.setState({ isPublic: e.target.checked })}>Public</Checkbox>
 				{!this.state.isPublic &&
@@ -53,22 +71,7 @@ class ContentAdder extends Component {
 						})}
 					</Select>
 				}
-				<Button onClick={() => {
-						axios.post('/db/postContent', {
-							username: this.props.user,
-							caption: this.state.caption,
-							path: this.state.path,
-							isPublic: this.state.isPublic ? 1 : 0,
-							groups: this.state.groups
-						})
-
-						this.setState({
-							caption: '',
-							path: '',
-							isPublic: true,
-							groups: [],
-						})
-					}}>Post</Button>
+				<Button onClick={this.handlePost}>Post</Button>
 			</Card>
 		)
 	}
