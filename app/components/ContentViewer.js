@@ -42,22 +42,24 @@ class ContentViewer extends Component {
 				})
 	}
 
+	renderRows = () => {
+		return this.state.data.map((t, i) => {
+			const title = t.first_name + ' ' + t.last_name + ' - ' + t.content_name
+			return (
+				<Panel key={t.id} header={title}>
+					<Row>{t.file_path}</Row>
+					<Row><Button onClick={this.infoModal(t.id, title)}>More Info</Button></Row>
+				</Panel>
+			)
+		})
+	}
+
 	render() {
 		return (
 			<div>
 				<Card title={this.props.title}>
 					<Collapse>
-						{
-							this.state.data.map((t, i) => {
-								const title = t.first_name + ' ' + t.last_name + ' - ' + t.content_name
-								return (
-									<Panel key={t.id} header={title}>
-										<Row>{t.file_path}</Row>
-										<Row><Button onClick={this.infoModal(t.id, title)}>More Info</Button></Row>
-									</Panel>
-								)
-							})
-						}
+						{this.renderRows()}
 					</Collapse>
 				</Card>
 			</div>

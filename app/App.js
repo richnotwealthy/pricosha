@@ -39,7 +39,7 @@ class App extends Component {
 		})
 	}
 
-	render = () => {
+	render() {
 		if (!this.state.loggedIn) {
 			return (
 				<LoginPage onLogin={this.onLogin} />

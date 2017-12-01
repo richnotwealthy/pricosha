@@ -2,6 +2,7 @@ module.exports = {
     babelrc: false,
     cacheDirectory: false,
     presets: [
+		'babel-preset-env',
         'babel-preset-react',
     ].map(require.resolve),
     plugins: [

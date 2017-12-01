@@ -17,7 +17,7 @@ class LoginPage extends Component {
 		})
 	}
 
-	render = () => {
+	render() {
 		return (
 			<Card style={{ marginLeft: '20%', marginRight: '20%', marginTop: '10%', borderRadius: 10 }}>
 				<Row>
