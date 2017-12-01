@@ -3,7 +3,7 @@ module.exports = {
     cacheDirectory: false,
     presets: [
 		'babel-preset-env',
-        'babel-preset-react',
+        'babel-preset-react'
     ].map(require.resolve),
     plugins: [
         'babel-plugin-syntax-trailing-function-commas',
