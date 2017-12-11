@@ -6,6 +6,7 @@ import ContentAdder from './components/ContentAdder'
 import LoginPage from './components/LoginPage'
 import SignupPage from './components/SignupPage'
 import FriendsList from './components/FriendsList'
+import TagManager from './components/TagManager'
 import {Layout, Menu, Icon, message} from 'antd'
 const {Content, Sider} = Layout
 const {Item} = Menu
@@ -81,12 +82,16 @@ class App extends Component {
 								<span>View Content</span>
 							</Item>
 							<Item key='content-add'>
-								<Icon type='plus-circle' />
+								<Icon type='plus-circle-o' />
 								<span>Add Content</span>
 							</Item>
 							<Item key='friends'>
 								<Icon type='smile-o' />
 								<span>Friends</span>
+							</Item>
+							<Item key='tag-manager'>
+								<Icon type='exclamation-circle-o' />
+								<span>Tags</span>
 							</Item>
 						</Menu>
 					</Sider>
@@ -94,6 +99,7 @@ class App extends Component {
 						{this.state.page === 'content-view' && <ContentViewer title='Content' user={this.state.user}/>}
 						{this.state.page === 'content-add' && <ContentAdder title='Add Content' user={this.state.user}/>}
 						{this.state.page === 'friends' && <FriendsList title='Manage Friends' user={this.state.user}/>}
+						{this.state.page === 'tag-manager' && <TagManager title='Manage Tags' user={this.state.user}/>}
 					</Content>
 				</Layout>
 			</div>

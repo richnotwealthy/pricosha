@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import {Input, Card, Collapse, Row, Modal, Button, List, Select, message} from 'antd'
+import {Input, Card, Collapse, Row, Modal, Button, List, Select, Tag, Tooltip, message} from 'antd'
 const {Panel} = Collapse
 
 class ContentViewer extends Component {
@@ -15,7 +15,9 @@ class ContentViewer extends Component {
 			modalVisible: false,
 			isCommenting: false,
 			newComment: '',
-			currContentID: null
+			currContentID: null,
+			allPeople: [],
+			taggee: null
 		}
 	}
 
@@ -27,6 +29,11 @@ class ContentViewer extends Component {
 						return a.timest < b.timest
 					})
 				})
+			})
+
+		axios.post('/db/allPeople', { username: null })
+			.then(res => {
+				this.setState({ allPeople: res.data })
 			})
 	}
 
@@ -66,7 +73,6 @@ class ContentViewer extends Component {
 
 		axios.post('/db/addComment', { id: this.state.currContentID, username: this.props.user, comment_text: this.state.newComment })
 			.then(res => {
-				this.setState({ isCommenting: false, })
 				axios.post('/db/contentInfo', { id: this.state.currContentID })
 					.then(res => {
 						this.setState({
@@ -88,9 +94,10 @@ class ContentViewer extends Component {
 						value={this.state.newComment}
 						name='newComment'
 						onChange={this.handleInputChange}
-						style={{ width: '80%' }}
+						style={{ width: '60%' }}
 					/>
 					<Button type='primary' onClick={this.addComment} style={{ width: '20%' }}>{'Submit'}</Button>
+					<Button onClick={() => this.setState({ isCommenting: false })} style={{ width: '20%' }}>{'Cancel'}</Button>
 				</div>
 			)
 		}
@@ -100,15 +107,37 @@ class ContentViewer extends Component {
 		)
 	}
 
+	addTag = () => {
+		if (!this.state.taggee) {
+			message.error('Please select a person to tag!')
+			return
+		}
+
+		axios.post('/db/addTag', { id: this.state.currContentID, username_tagger: this.props.user, username_taggee: this.state.taggee })
+			.then(res => {
+				this.setState({ isCommenting: false, })
+				axios.post('/db/contentInfo', { id: this.state.currContentID })
+					.then(res => {
+						this.setState({
+							isTagging: false,
+							tags: res.data.tags,
+							comments: res.data.comments,
+							newComment: '',
+							taggee: null
+						})
+					})
+			})
+	}
+
 	renderTagger = () => {
 		if (this.state.isTagging) {
 			return (
 				<div>
 					<Select
 						placeholder='Select a Person'
-						style={{ width: '100%' }}
-						value={this.state.person}
-						onChange={(person) => this.setState({ person })}
+						style={{ width: '60%' }}
+						value={this.state.taggee}
+						onChange={(taggee) => this.setState({ taggee })}
 					>
 						{this.state.allPeople.map((t, i) => {
 							return (
@@ -117,9 +146,22 @@ class ContentViewer extends Component {
 						})}
 					</Select>
 					<Button type='primary' onClick={this.addTag} style={{ width: '20%' }}>{'Submit'}</Button>
+					<Button onClick={() => this.setState({ isTagging: false })} style={{ width: '20%' }}>{'Cancel'}</Button>
 				</div>
 			)
 		}
+
+		return (
+			<div>
+				<Button style={{ marginRight: 10 }} onClick={() => this.setState({ isTagging: true })}>Tag</Button>
+				<span>{this.state.tags.map((t, i) => (
+						<Tooltip key={i} title={'tagged by ' + t.username_tagger + ' at ' + t.timest}>
+							<Tag>{t.username_taggee}</Tag>
+						</Tooltip>
+					)
+				)}</span>
+			</div>
+		)
 	}
 
 	handleInputChange = (e) => {
@@ -139,13 +181,18 @@ class ContentViewer extends Component {
 				<Modal
 		        	title={this.state.contentTitle}
 		        	visible={this.state.modalVisible}
+					closable={false}
 					footer={(<Button type='primary' onClick={() => this.setState({ modalVisible: false })}>Ok</Button>)}
 		        >
 					<List
 						header={this.renderTagger()}
 						footer={this.renderCommenter()}
 						dataSource={this.state.comments}
-						renderItem={c => (<List.Item>{JSON.stringify(c)}</List.Item>)}
+						renderItem={c => (
+							<Tooltip title={'at ' + c.timest}>
+								<List.Item>{c.username + ': ' + c.comment_text}</List.Item>
+							</Tooltip>
+						)}
 					/>
 				</Modal>
 			</div>

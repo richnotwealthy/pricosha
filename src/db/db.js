@@ -105,6 +105,48 @@ router.post('/contentInfo', function(req, res) {
 	})
 })
 
+router.post('/getTags', function(req, res) {
+	const username_taggee = req.body.username
+
+	sequelize.query(
+		'SELECT Content.id, Tag.username_tagger, Content.file_path, Content.content_name, Tag.timest FROM Tag JOIN Content ON Tag.id = Content.id WHERE username_taggee = :username_taggee AND status != 1',
+		{
+			replacements: { username_taggee },
+			type: sequelize.QueryTypes.SELECT
+		}
+	).then(tags => {
+		res.json(tags)
+	})
+})
+
+router.post('/acceptTag', function(req, res) {
+	const { id, username_tagger, username_taggee } = req.body
+
+	sequelize.query(
+		'UPDATE `Tag` SET `status` = 1 WHERE `Tag`.`id` = :id AND `Tag`.`username_tagger` = :username_tagger AND `Tag`.`username_taggee` = :username_taggee',
+		{
+			replacements: { id, username_tagger, username_taggee },
+			type: sequelize.QueryTypes.UPDATE
+		}
+	).then(tag => {
+		res.json(tag)
+	})
+})
+
+router.post('/rejectTag', function(req, res) {
+	const { id, username_tagger, username_taggee } = req.body
+
+	sequelize.query(
+		'DELETE FROM `Tag` WHERE `Tag`.`id` = :id AND `Tag`.`username_tagger` = :username_tagger AND `Tag`.`username_taggee` = :username_taggee',
+		{
+			replacements: { id, username_tagger, username_taggee },
+			type: sequelize.QueryTypes.DELETE
+		}
+	).then(tag => {
+		res.json(tag)
+	})
+})
+
 // get friendgroups that a user owns
 router.post('/friendGroups', function(req, res) {
 	const username = req.body.username
@@ -154,8 +196,13 @@ router.post('/otherPeople', function(req, res) {
 router.post('/allPeople', function(req, res) {
 	const { username } = req.body
 
+	let query
+
+	if (username) query = 'SELECT username, first_name, last_name FROM Person WHERE username != :username'
+	else query = 'SELECT username, first_name, last_name FROM Person'
+
 	sequelize.query(
-		'SELECT username, first_name, last_name FROM Person WHERE username != :username',
+		query,
 		{
 			replacements: { username: username },
 			type: sequelize.QueryTypes.SELECT
@@ -236,6 +283,20 @@ router.post('/addComment', function(req, res) {
 		}
 	).then(newComment => {
 		res.json(newComment)
+	})
+})
+
+router.post('/addTag', function(req, res) {
+	const { id, username_tagger, username_taggee } = req.body
+
+	sequelize.query(
+		'INSERT INTO `Tag` (`id`, `username_tagger`, `username_taggee`, `status`) VALUES (:id, :username_tagger, :username_taggee, :status)',
+		{
+			replacements: { id, username_tagger, username_taggee, status: username_taggee === username_tagger },
+			type: sequelize.QueryTypes.INSERT
+		}
+	).then(newTag => {
+		res.json(newTag)
 	})
 })
 
