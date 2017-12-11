@@ -286,6 +286,20 @@ router.post('/addComment', function(req, res) {
 	})
 })
 
+router.post('/deleteComment', function(req, res) {
+	const { id, username, timest } = req.body
+
+	sequelize.query(
+		'DELETE FROM `Comment` WHERE `Comment`.`id` = :id AND `Comment`.`username` = :username AND `Comment`.`timest` = :timest',
+		{
+			replacements: { id, username, timest },
+			type: sequelize.QueryTypes.DELETE
+		}
+	).then(com => {
+		res.json(com)
+	})
+})
+
 router.post('/addTag', function(req, res) {
 	const { id, username_tagger, username_taggee } = req.body
 

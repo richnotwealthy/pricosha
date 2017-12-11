@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import {Input, Card, Collapse, Row, Modal, Button, List, Select, Tag, Tooltip, message} from 'antd'
+import {Icon, Input, Card, Collapse, Row, Modal, Button, List, Select, Tag, Tooltip, message} from 'antd'
 const {Panel} = Collapse
 
 class ContentViewer extends Component {
@@ -170,6 +170,24 @@ class ContentViewer extends Component {
 		})
 	}
 
+	deleteComment = (id, username, timest) => {
+		return () => {
+			timest = new Date(timest)
+			timest = timest.getTime() - (timest.getTimezoneOffset() * 60000)
+			axios.post('/db/deleteComment', { id, username, timest: new Date(timest).toISOString().slice(0, 19).replace('T', ' ') })
+				.then(res => {
+					axios.post('/db/contentInfo', { id: id })
+						.then(res => {
+							this.setState({
+								currContentID: id,
+								tags: res.data.tags,
+								comments: res.data.comments,
+							})
+						})
+				})
+		}
+	}
+
 	render() {
 		return (
 			<div>
@@ -190,7 +208,18 @@ class ContentViewer extends Component {
 						dataSource={this.state.comments}
 						renderItem={c => (
 							<Tooltip title={'at ' + c.timest}>
-								<List.Item>{c.username + ': ' + c.comment_text}</List.Item>
+								<List.Item>
+									<span>{c.username + ': ' + c.comment_text}</span>
+									{c.username === this.props.user
+										&& (<Button
+												onClick={this.deleteComment(c.id, c.username, c.timest)}
+												type='dashed'
+												style={{ marginLeft: 10, height: 20 }}
+											>
+												<Icon type="close" />
+											</Button>)
+									}
+								</List.Item>
 							</Tooltip>
 						)}
 					/>
