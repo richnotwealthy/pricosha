@@ -129,9 +129,9 @@ class FriendsList extends Component {
 		        	onCancel={() => this.setState({ modalVisible: false })}
 		        >
 					<Select
+						placeholder='Select a Person'
 						style={{ width: '100%' }}
 						value={this.state.person}
-						placeholder='Select Person'
 						onChange={(person) => this.setState({ person })}
 					>
 						{this.state.otherPeople.map((t, i) => {
@@ -164,9 +164,9 @@ class FriendsList extends Component {
 						style={{ width: '100%' }}
 					/>
 					<Select
+						placeholder='Select a Person'
 						style={{ width: '100%' }}
 						value={this.state.person}
-						placeholder='Select Person'
 						onChange={(person) => this.setState({ person })}
 					>
 						{this.state.allPeople.map((t, i) => {

@@ -225,4 +225,18 @@ router.post('/postContent', function(req, res) {
 	})
 })
 
+router.post('/addComment', function(req, res) {
+	const { id, username, comment_text } = req.body
+
+	sequelize.query(
+		'INSERT INTO `Comment` (`id`, `username`, `comment_text`) VALUES (:id, :username, :comment_text)',
+		{
+			replacements: { id, username, comment_text },
+			type: sequelize.QueryTypes.INSERT
+		}
+	).then(newComment => {
+		res.json(newComment)
+	})
+})
+
 module.exports = router;
