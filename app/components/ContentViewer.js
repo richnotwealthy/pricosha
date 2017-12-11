@@ -38,7 +38,7 @@ class ContentViewer extends Component {
 						),
 						width: '75%',
 						onOk() {},
-					});
+					})
 				})
 	}
 

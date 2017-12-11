@@ -4,6 +4,8 @@ import axios from 'axios'
 import ContentViewer from './components/ContentViewer'
 import ContentAdder from './components/ContentAdder'
 import LoginPage from './components/LoginPage'
+import SignupPage from './components/SignupPage'
+import FriendsList from './components/FriendsList'
 import {Layout, Menu, Icon, message} from 'antd'
 const {Content, Sider} = Layout
 const {Item} = Menu
@@ -33,16 +35,38 @@ class App extends Component {
 			})
 	}
 
+	onSignup = ({ username, first_name, last_name, password }) => {
+		if (!username || !first_name || !last_name || !password) {
+			message.error('All fields required!')
+		} else {
+			axios.post('/db/createAccount', { username, first_name, last_name, password })
+				.then(res => {
+					if (!res.data) {
+						message.error('Username already exists!')
+					} else {
+						message.success('Account created!')
+						this.setState({ loggedIn: res.data, user: username, page: 'content-view' })
+					}
+				})
+		}
+	}
+
 	onPageSelect = ({ item, key, selectedKeys }) => {
 		this.setState({
 			page: key
 		})
 	}
 
+	pageChange = (page) => this.setState({ page })
+
 	render() {
-		if (!this.state.loggedIn) {
+		if (this.state.page === 'signup') {
 			return (
-				<LoginPage onLogin={this.onLogin} />
+				<SignupPage onSignup={this.onSignup} pageChange={this.pageChange} />
+			)
+		} else if (!this.state.loggedIn) {
+			return (
+				<LoginPage onLogin={this.onLogin} pageChange={this.pageChange} />
 			)
 		}
 
@@ -54,17 +78,22 @@ class App extends Component {
 						<Menu theme='dark' defaultSelectedKeys={['content-view']} mode='inline' onSelect={this.onPageSelect}>
 							<Item key='content-view'>
 								<Icon type='appstore-o' />
-								<span>View</span>
+								<span>View Content</span>
 							</Item>
 							<Item key='content-add'>
 								<Icon type='plus-circle' />
-								<span>Add</span>
+								<span>Add Content</span>
+							</Item>
+							<Item key='friends'>
+								<Icon type='smile-o' />
+								<span>Friends</span>
 							</Item>
 						</Menu>
 					</Sider>
 					<Content style={{ padding: 24 }}>
 						{this.state.page === 'content-view' && <ContentViewer title='Content' user={this.state.user}/>}
-						{this.state.page === 'content-add' && <ContentAdder title='Add' user={this.state.user}/>}
+						{this.state.page === 'content-add' && <ContentAdder title='Add Content' user={this.state.user}/>}
+						{this.state.page === 'friends' && <FriendsList title='Manage Friends' user={this.state.user}/>}
 					</Content>
 				</Layout>
 			</div>

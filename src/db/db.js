@@ -13,9 +13,6 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
 		acquire: 30000,
 		idle: 10000
 	},
-	dialectOptions: {
-        socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
-    },
 });
 
 sequelize.authenticate()
@@ -26,6 +23,7 @@ sequelize.authenticate()
 		console.error('Unable to connect to the database:', err);
 	});
 
+// check password and login
 router.post('/login', function(req, res) {
 	const username = req.body.username;
 	const password = md5(req.body.password)
@@ -41,6 +39,35 @@ router.post('/login', function(req, res) {
 	})
 });
 
+// check if username already exists and create new user
+router.post('/createAccount', function(req, res) {
+	const { username, first_name, last_name } = req.body
+	const password = md5(req.body.password)
+
+	sequelize.query(
+		'SELECT username FROM Person',
+		{
+			type: sequelize.QueryTypes.SELECT
+		}
+	).then(users => {
+		if (users.indexOf(username) === -1) {
+			sequelize.query(
+				'INSERT INTO `Person` (`username`, `first_name`, `last_name`, `password`) VALUES (:username, :first_name, :last_name, :password)',
+				{
+					replacements: { username, first_name, last_name, password },
+					type: sequelize.QueryTypes.INSERT
+				}
+			).then(newPerson => {
+				res.send(true)
+			})
+			res.send(true)
+		} else {
+			res.send(false)
+		}
+	})
+});
+
+// get content that user can view
 router.post('/userContent', function(req, res) {
 	const user = req.body.user;
 
@@ -55,6 +82,7 @@ router.post('/userContent', function(req, res) {
 	})
 });
 
+// get more info about a content item
 router.post('/contentInfo', function(req, res) {
 	const id = req.body.id;
 
@@ -77,17 +105,99 @@ router.post('/contentInfo', function(req, res) {
 	})
 })
 
+// get friendgroups that a user owns
 router.post('/friendGroups', function(req, res) {
 	const username = req.body.username
 
 	sequelize.query(
-		'SELECT group_name FROM FriendGroup WHERE username = :username',
+		'SELECT group_name, description FROM FriendGroup WHERE username = :username',
 		{
 			replacements: { username: username },
 			type: sequelize.QueryTypes.SELECT
 		}
 	).then(groups => {
 		res.json(groups)
+	})
+})
+
+// get friends from a friend group
+router.post('/friends', function(req, res) {
+	const { username_creator, group_name } = req.body
+
+	sequelize.query(
+		'SELECT first_name, last_name, username FROM Member NATURAL JOIN Person WHERE username_creator = :username_creator AND group_name = :group_name',
+		{
+			replacements: { username_creator: username_creator, group_name: group_name },
+			type: sequelize.QueryTypes.SELECT
+		}
+	).then(friends => {
+		res.json(friends)
+	})
+})
+
+// get people not in friends list for user
+router.post('/otherPeople', function(req, res) {
+	const { username, group_name } = req.body
+
+	sequelize.query(
+		'SELECT username, first_name, last_name FROM Person WHERE username != :username AND username NOT IN (SELECT username FROM Member WHERE username_creator = :username AND group_name = :group_name)',
+		{
+			replacements: { username, group_name },
+			type: sequelize.QueryTypes.SELECT
+		}
+	).then(people => {
+		res.json(people)
+	})
+})
+
+// get all people except user
+router.post('/allPeople', function(req, res) {
+	const { username } = req.body
+
+	sequelize.query(
+		'SELECT username, first_name, last_name FROM Person WHERE username != :username',
+		{
+			replacements: { username: username },
+			type: sequelize.QueryTypes.SELECT
+		}
+	).then(people => {
+		res.json(people)
+	})
+})
+
+router.post('/addFriend', function(req, res) {
+	const { username, group_name, username_creator } = req.body
+
+	sequelize.query(
+		'INSERT INTO `Member` (`username`, `group_name`, `username_creator`) VALUES (:username, :group_name, :username_creator)',
+		{
+			replacements: { username, group_name, username_creator },
+			type: sequelize.QueryTypes.INSERT
+		}
+	).then(newMember => {
+		res.json(newMember)
+	})
+})
+
+router.post('/addFriendGroup', function(req, res) {
+	const { username, group_name, description, person } = req.body
+
+	sequelize.query(
+		'INSERT INTO `FriendGroup` (`username`, `group_name`, `description`) VALUES (:username, :group_name, :description)',
+		{
+			replacements: { username, group_name, description },
+			type: sequelize.QueryTypes.INSERT
+		}
+	).then(newFG => {
+		sequelize.query(
+			'INSERT INTO `Member` (`username`, `group_name`, `username_creator`) VALUES (:username, :group_name, :username_creator)',
+			{
+				replacements: { username: person, username_creator: username, group_name },
+				type: sequelize.QueryTypes.INSERT
+			}
+		).then(newMember => {
+			res.json(newMember)
+		})
 	})
 })
 

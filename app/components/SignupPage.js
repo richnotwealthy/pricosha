@@ -1,13 +1,15 @@
 import React, {Component} from 'react'
 import {Card, Row, Input, Button, Icon} from 'antd'
 
-class LoginPage extends Component {
+class SignupPage extends Component {
 	constructor(props) {
 		super(props)
 
 		this.state = {
 			username: '',
-			password: ''
+			password: '',
+			first_name: '',
+			last_name: ''
 		}
 	}
 
@@ -32,6 +34,26 @@ class LoginPage extends Component {
 				</Row>
 				<Row>
 					<Input
+						prefix={<Icon type="right" style={{ fontSize: 13 }} />}
+						placeholder='First Name'
+						value={this.state.first_name}
+						name='first_name'
+						onChange={this.handleInputChange}
+						style={{ width: '100%' }}
+					/>
+				</Row>
+				<Row>
+					<Input
+						prefix={<Icon type="right" style={{ fontSize: 13 }} />}
+						placeholder='Last Name'
+						value={this.state.last_name}
+						name='last_name'
+						onChange={this.handleInputChange}
+						style={{ width: '100%' }}
+					/>
+				</Row>
+				<Row>
+					<Input
 						prefix={<Icon type="lock" style={{ fontSize: 13 }} />}
 						placeholder='Password'
 						value={this.state.password}
@@ -42,12 +64,12 @@ class LoginPage extends Component {
 					/>
 				</Row>
 				<Row>
-					<Button type='primary' onClick={() => this.props.onLogin(this.state)}>Login</Button>
-					<Button onClick={() => this.props.pageChange('signup')}>Create Account</Button>
+					<Button type='primary' onClick={() => this.props.onSignup(this.state)}>Create</Button>
+					<Button onClick={() => this.props.pageChange('content-view')}>Cancel</Button>
 				</Row>
 			</Card>
 		)
 	}
 }
 
-export default LoginPage
+export default SignupPage
