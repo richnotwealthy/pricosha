@@ -14,6 +14,7 @@ class FriendsList extends Component {
 			person: null,
 			modalVisible: false,
 			modalFGVisible: false,
+			isEditingDes: false,
 			fgname: null,
 			fgdes: null,
 			currGroup: null
@@ -42,7 +43,15 @@ class FriendsList extends Component {
 				})
 
 				Promise.all(groups).then((groupData) => {
-					this.setState({ groupData, modalVisible: false, modalFGVisible: false, person: null })
+					this.setState({
+						groupData,
+						modalVisible: false,
+						modalFGVisible: false,
+						isEditingDes: false,
+						person: null,
+						fgname: '',
+						fgdes: ''
+					})
 				})
 			})
 	}
@@ -61,6 +70,7 @@ class FriendsList extends Component {
 			const group = t.group_name
 			return (
 				<Panel key={i} header={group + ' - ' + t.description}>
+					<Button style={{ marginBottom: 15 }} onClick={() => this.setState({ isEditingDes: true, currGroup: group })}>Edit Description</Button>
 					<List
 				    	footer={<Button onClick={this.getOtherPeople(group)}>Add Friend</Button>}
 				    	bordered
@@ -107,6 +117,18 @@ class FriendsList extends Component {
 		})
 	}
 
+	editFGDes = () => {
+		const { currGroup, fgdes } = this.state
+
+		axios.post('/db/editFGDes', {
+			username: this.props.user,
+			group_name: currGroup,
+			description: fgdes
+		}).then(res => {
+			this.getFriends()
+		})
+	}
+
 	handleInputChange = (e) => {
 		this.setState({
 			[e.target.name]: e.target.value
@@ -120,7 +142,7 @@ class FriendsList extends Component {
 					<Collapse>
 						{this.renderGroups()}
 					</Collapse>
-					<Button onClick={() => this.setState({ modalFGVisible: true })}>Add FriendGroup</Button>
+					<Button style={{ marginTop: 15 }} onClick={() => this.setState({ modalFGVisible: true })}>Add FriendGroup</Button>
 				</Card>
 				<Modal
 		        	title={'Add a Friend to ' + this.state.currGroup}
@@ -175,6 +197,21 @@ class FriendsList extends Component {
 							)
 						})}
 					</Select>
+				</Modal>
+				<Modal
+		        	title={this.state.currGroup}
+		        	visible={this.state.isEditingDes}
+		        	onOk={this.editFGDes}
+		        	onCancel={() => this.setState({ isEditingDes: false })}
+		        >
+					<Input
+						prefix={<Icon type='info-circle-o' style={{ fontSize: 13 }} />}
+						placeholder='New Description'
+						value={this.state.fgdes}
+						name='fgdes'
+						onChange={this.handleInputChange}
+						style={{ width: '100%' }}
+					/>
 				</Modal>
 			</div>
 		)

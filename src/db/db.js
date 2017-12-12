@@ -248,6 +248,20 @@ router.post('/addFriendGroup', function(req, res) {
 	})
 })
 
+router.post('/editFGdes', function(req, res) {
+	const { username, group_name, description } = req.body
+
+	sequelize.query(
+		'UPDATE `FriendGroup` SET `description` = :description WHERE `FriendGroup`.`group_name` = :group_name AND `FriendGroup`.`username` = :username',
+		{
+			replacements: { username, group_name, description },
+			type: sequelize.QueryTypes.UPDATE
+		}
+	).then(newDes => {
+		res.json(newDes)
+	})
+})
+
 router.post('/postContent', function(req, res) {
 	const { username, caption, path, isPublic, groups } = req.body
 
